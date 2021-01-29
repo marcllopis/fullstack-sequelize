@@ -5,7 +5,7 @@ const express = require('express');
 // require the db
 const db = require('./database/configs')
 // require the auth folder
-
+require('./auth')
 
 // app config related stuff
 const app = express();
@@ -14,7 +14,7 @@ const app = express();
 // create route for register, login and profile
 const loginRouter = require('./routes/login')
 const registerRouter = require('./routes/register')
-const profileRouter = require('./routes/profile')
+const profileRouter = require('./routes/profile');
 
 
 // set the DB connection
@@ -27,7 +27,6 @@ db.connector
 // app global middlewares
 app.use(express.urlencoded({extended:false}))
 app.use(express.json())
-
 
 // set the routes
 app.use('/login', loginRouter)

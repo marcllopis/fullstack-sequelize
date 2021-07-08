@@ -1,13 +1,13 @@
-import React, { createContext, Component } from "react";
+import React, { createContext, useState } from "react";
 import { postRoute } from "../helpers/apiFetcher";
 import { initialState } from "./InitialState";
 
 export const AuthContext = createContext();
 
-export default class AuthContextProvider extends Component {
-  state = initialState;
+const AuthContextProvider = (props) => {
+  let [state, setState] = useState(initialState);
 
-  submitRegistrationForm = (data, e) => {
+  const submitRegistrationForm = (data, e) => {
     e.preventDefault();
 
     const newUser = {
@@ -19,14 +19,14 @@ export default class AuthContextProvider extends Component {
 
     postRoute("/register", newUser)
       .then((results) =>
-        this.setState({ redirectLogin: true, message: results.message })
+        setState({ ...state, redirectLogin: true, message: results.message })
       )
       .catch((postError) =>
         console.error(`Error when running POST to api: ${postError}`)
       );
   };
 
-  submitLoginForm = (data, e) => {
+  const submitLoginForm = (data, e) => {
     e.preventDefault();
 
     const user = {
@@ -36,8 +36,8 @@ export default class AuthContextProvider extends Component {
 
     postRoute("/login", user)
       .then((results) => {
-        console.log(results)
-        this.setState({
+        setState({
+          ...state,
           user: results.securedFinalUser,
           token: results.token,
           redirectProfile: true,
@@ -48,31 +48,28 @@ export default class AuthContextProvider extends Component {
       );
   };
 
-  authenticateUser = (isTokenVerified) => {
-    this.setState({
-      ...this.state,
+  const authenticateUser = (isTokenVerified) => {
+    setState({
+      ...state,
       isAuthenticated: isTokenVerified,
       message: "You've successfully logged into your profile!",
     });
   };
 
-  logoutUser = () => {
-    this.setState(initialState);
-  };
+  const logoutUser = () => state = initialState
 
-  render() {
-    return (
-      <AuthContext.Provider
-        value={{
-          ...this.state,
-          submitRegistrationForm: this.submitRegistrationForm,
-          submitLoginForm: this.submitLoginForm,
-          authenticateUser: this.authenticateUser,
-          logoutUser: this.logoutUser,
-        }}
-      >
-        {this.props.children}
-      </AuthContext.Provider>
-    );
-  }
+  return (
+    <AuthContext.Provider
+      value={{
+        ...state,
+        submitRegistrationForm: submitRegistrationForm,
+        submitLoginForm: submitLoginForm,
+        authenticateUser: authenticateUser,
+        logoutUser: logoutUser,
+      }}
+    >
+      {props.children}
+    </AuthContext.Provider>
+  );
 }
+export default AuthContextProvider;
